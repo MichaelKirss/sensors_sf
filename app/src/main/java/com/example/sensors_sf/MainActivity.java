@@ -15,9 +15,8 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 
-
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
-    private TextView textView;
+    private TextView textViewX, textViewY, textViewZ;
     private SensorManager sensorManager;
 
 
@@ -32,8 +31,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        textView = findViewById(R.id.textView);
+        textViewX = findViewById(R.id.textViewX);
+        textViewY = findViewById(R.id.textViewY);
+        textViewZ = findViewById(R.id.textViewZ);
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        if (sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) == null) {
+            System.err.println("Датчик не доступен на данном устройстве");
+        }
 
     }
 
@@ -42,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onResume();
         System.err.println("test onResume");
 
-        sensorManager.registerListener( this, sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE),SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
@@ -54,9 +58,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        float changedValue = event.values[2];
-        textView.setText(String.valueOf(changedValue));
-        System.err.println("получены новые данные: "+ changedValue);
+        float changedValueX = event.values[0];
+        float changedValueY = event.values[1];
+        float changedValueZ = event.values[2];
+//        System.err.println("получены новые данные: " + changedValue);
+        textViewX.setText("X coord:  " +changedValueX);
+        textViewY.setText("Y coord:  " +changedValueY);
+        textViewZ.setText("Z coord:  " +changedValueZ);
+
+        System.err.println("X coord:  " +changedValueX);
+        System.err.println("Y coord:  " +changedValueY);
+        System.err.println("Z coord:  " +changedValueZ);
     }
 
     @Override
