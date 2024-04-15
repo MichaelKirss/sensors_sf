@@ -4,7 +4,6 @@ import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
-import android.hardware.SensorListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.widget.TextView;
@@ -15,13 +14,12 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import java.util.concurrent.TimeUnit;
 
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
     private TextView textView;
     private SensorManager sensorManager;
-    private int accuracy = 0;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,19 +42,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onResume();
         System.err.println("test onResume");
 
-        sensorManager.registerListener((SensorEventListener) this, sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT), accuracy);
+        sensorManager.registerListener( this, sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE),SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         System.err.println("test onPause");
-//        sensorManager.unregisterListener((SensorListener) this);
+        sensorManager.unregisterListener(this);
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        float changedValue = event.values[0];
+        float changedValue = event.values[2];
         textView.setText(String.valueOf(changedValue));
         System.err.println("получены новые данные: "+ changedValue);
     }
