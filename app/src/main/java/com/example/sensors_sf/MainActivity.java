@@ -5,17 +5,21 @@ import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.widget.TextView;
+
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import java.util.List;
+
+import java.util.concurrent.TimeUnit;
+
 
 public class MainActivity extends AppCompatActivity {
     private TextView textView;
     private SensorManager sensorManager;
-    private List<Sensor> deviceSensors;
+    private Sensor sensor;
+    private Thread threadSensors = null;
 
 
     @Override
@@ -28,15 +32,32 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        textView=findViewById(R.id.textView);
+        textView = findViewById(R.id.textView);
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        deviceSensors = sensorManager.getSensorList(Sensor.TYPE_ALL);
+        sensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
-        printSensors();
+//        textView.setText((int) sensor.getPower() +sensor.getName());
+        refresh();
     }
-    private void printSensors(){
-        for(Sensor sensor: deviceSensors) {
-            textView.setText(textView.getText() + "\n" + sensor.getName());
-        }
+
+    private void refresh() {
+        threadSensors = new Thread(() -> {
+            while (true) {
+                runOnUiThread(() ->{
+                    textView.setText((int) sensor.getPower() +sensor.getName());
+                });
+
+                System.err.println("отправили новые данные getPower: " + sensor.getPower());
+                try {
+                    TimeUnit.MILLISECONDS.sleep(1000);
+                } catch (InterruptedException e) {
+                    System.err.println("случилась ошибка " + e);
+                }
+
+
+            }
+        });
+        threadSensors.start();
     }
+
 }
